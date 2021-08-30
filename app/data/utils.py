@@ -29,8 +29,6 @@ def process_dataset():
         board_mirror = mirror_board(board)
         data[board] = utility
         data[board_mirror] = utility
-        data[board[:: -1]] = -utility
-        data[board_mirror[:: -1]] = -utility
     print("loading finished")
     return data
 

@@ -28,5 +28,9 @@ class GameState:
                     print('O', end=' ')
             print()
         print()
+
+    
+    def __hash__(self):
+        return hash(tuple(self.boards))
                 
       

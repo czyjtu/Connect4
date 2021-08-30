@@ -1,117 +1,78 @@
 import numpy as np
-from functools import lru_cache
 
-def minmax(game, state):
-    @lru_cache
-    def max_value(state):
+
+def minmax(game, state, max_depth=10, lookup_table={}, dataset={}):
+    def minmax_decision(state, maximizing):
+        # if state in lookup_table:
+        #     v = lookup_table[state]
+        #     return v if player == 0 else -v
+        if state.counter > max_depth:
+            return -np.inf if maximizing else np.inf
         if game.terminal_test(state):
-            return game.utility(state, player)
-        v = -np.inf
+            game.compute_utility(state)
+            return game.compute_utility(state)
+        
+        ###--use of datasets--###
+        if state.counter == 8:
+            if tuple(state.boards) in dataset:
+                u = dataset[tuple(state.boards)]
+                return u if player == 0 else -u
+            # check if the player can win in next move
+            current_player = state.counter & 1
+            if game.get_winning(state, current_player) is not None:
+                return 1 if player == current_player else -1
+            # check if the oponent have winning move
+            move = game.get_winning(state, 1 - current_player)
+            if move is not None:
+                # make move to prevent other player winning
+                game.make_move(state, move)
+                v = minmax_decision(state, not maximizing)
+                game.undo_move(state)
+                return v
+            state.display()
+            raise ValueError
+        ###-------------------###
+        best = -np.inf if maximizing else np.inf
+        cutoff = 1 if maximizing else -1
         for a in game.actions(state):
             game.make_move(state, a)
-            v = max(v, min_value(state))
+            value = minmax_decision(state, not maximizing)
+            best = max(best, value) if maximizing else min(best, value) 
             game.undo_move(state)
-        return v
-
-    @lru_cache
-    def min_value(state):
-        if game.terminal_test(state):
-            return game.utility(state, player)
-        v = np.inf
-        for a in game.actions(state):
-            game.make_move(state, a)
-            v = min(v, max_value(state))
-            game.undo_move(state)
-        return v
+            if best == cutoff: 
+                lookup_table[state] = best if player == 0 else -best
+                break
+        return best
 
     player = state.counter & 1
-    actions = game.actions(state)
-    best_action = None
-    best_utility = -np.inf
-    for action in actions:
-        game.make_move(state, action)
-        utility = min_value(state)
-        game.undo_move(state)
-        print(action, utility)
-        if utility == 1: # winning move
-            return action
-        if utility > best_utility:
-            best_utility = utility
-            best_action = action
-        # print(action, utility)
-    return best_action
-    # return max(game.actions(state), key=lambda a: min_value(game.result(state, a)))
-
-
-def minmax_data(game, state, utilities):
-
-    def max_value(state):
-        if len(state.moves) == 8:
-            if tuple(state.boards) in utilities:
-                u = utilities[tuple(state.boards)]
-            else:
-                move, u = game.get_forced(state)
-                if move is not None:
-                    return u if player == 0 else -u
-                else:
-                    state.display()
-                    print(state.moves)
-                    print(state.boards)
-                    print(state.counter)
-                    raise ValueError
-            return u if player == 0 else - u
-        if game.terminal_test(state):
-            return game.utility(state, player)
-        v = -np.inf
-        for a in game.actions(state):
-            game.make_move(state, a)
-            v = max(v, min_value(state))
-            game.undo_move(state)
-        return v
-
-
-    def min_value(state):
-        if len(state.moves) == 8:
-            if tuple(state.boards) in utilities:
-                u = utilities[tuple(state.boards)]
-            else:
-                move, u = game.get_forced(state)
-                if move is not None:
-                    return u if player == 0 else -u
-                else:
-                    state.display()
-                    # state.display()
-                    print(state.moves)
-                    print(state.boards)
-                    print(state.counter)
-                    raise ValueError
-            return u if player == 0 else - u
-        if game.terminal_test(state):
-            return game.utility(state, player)
-        v = np.inf
-        for a in game.actions(state):
-            game.make_move(state, a)
-            v = min(v, max_value(state))
-            game.undo_move(state)
-        return v
-
-    
-    move, u = game.get_forced(state)
+    move = game.get_winning(state, player)
     if move:
         return move
-    player = state.counter & 1
     actions = game.actions(state)
     best_action = None
     best_utility = -np.inf
     for action in actions:
         game.make_move(state, action)
-        utility = min_value(state)
+        utility = minmax_decision(state, False)
         game.undo_move(state)
-        print(action, utility)
-        if utility == 1: # winning move
+        print(f"depth {max_depth} -> ({action}, {utility})")
+        if utility == 1:
             return action
-        if utility > best_utility:
+        if utility > best_utility and -3 < utility < 3:
             best_utility = utility
             best_action = action
-        # print(action, utility)
-    return best_action
+    if best_utility == 0:
+        return best_action
+    elif abs(best_utility) != np.inf:
+        return np.random.choice(actions)
+
+    return None
+
+
+def idminmax(game, state, utilities, max_depth=22, lookup_table={}):
+    for depth in range(8, max_depth + 1):
+        print("depth", depth)
+        a = minmax(game, state, dataset=utilities, max_depth=depth, lookup_table=lookup_table)
+        if a is not None:
+            return a
+

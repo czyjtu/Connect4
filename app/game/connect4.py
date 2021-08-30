@@ -66,21 +66,16 @@ class Connect4:
         return False
 
 
-    def get_forced(self, state):
+    def get_winning(self, state, player):
         if state.counter < 6:
-            return None, None
-        if state.counter & 1 == 0:
-            order = [0, 1]
-        else:
-            order = [1, 0]
-        for player in order:
-            for a in self.actions(state):
-                self.make_move(state, a, player)
-                winning = self.is_win(state, player)
-                self.undo_move(state, player)
-                if winning:
-                    return (a, 1) if player == 0  else (a, -1)
-        return None, None
+            return None
+        for a in self.actions(state):
+            self.make_move(state, a, player)
+            winning = self.is_win(state, player)
+            self.undo_move(state, player)
+            if winning:
+                return a 
+        return None
 
     
     def play_game(self, *players):
