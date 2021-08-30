@@ -1,7 +1,8 @@
 import numpy as np
-
+from functools import lru_cache
 
 def minmax(game, state):
+    @lru_cache
     def max_value(state):
         if game.terminal_test(state):
             return game.utility(state, player)
@@ -12,6 +13,7 @@ def minmax(game, state):
             game.undo_move(state)
         return v
 
+    @lru_cache
     def min_value(state):
         if game.terminal_test(state):
             return game.utility(state, player)
@@ -44,8 +46,19 @@ def minmax(game, state):
 def minmax_data(game, state, utilities):
 
     def max_value(state):
-        if len(state.moves) == 8 and tuple(state.boards) in utilities:
-            u = utilities[tuple(state.boards)]
+        if len(state.moves) == 8:
+            if tuple(state.boards) in utilities:
+                u = utilities[tuple(state.boards)]
+            else:
+                move, u = game.get_forced(state)
+                if move is not None:
+                    return u if player == 0 else -u
+                else:
+                    state.display()
+                    print(state.moves)
+                    print(state.boards)
+                    print(state.counter)
+                    raise ValueError
             return u if player == 0 else - u
         if game.terminal_test(state):
             return game.utility(state, player)
@@ -58,8 +71,20 @@ def minmax_data(game, state, utilities):
 
 
     def min_value(state):
-        if len(state.moves) == 8 and tuple(state.boards) in utilities:
-            u = utilities[tuple(state.boards)]
+        if len(state.moves) == 8:
+            if tuple(state.boards) in utilities:
+                u = utilities[tuple(state.boards)]
+            else:
+                move, u = game.get_forced(state)
+                if move is not None:
+                    return u if player == 0 else -u
+                else:
+                    state.display()
+                    # state.display()
+                    print(state.moves)
+                    print(state.boards)
+                    print(state.counter)
+                    raise ValueError
             return u if player == 0 else - u
         if game.terminal_test(state):
             return game.utility(state, player)
@@ -70,7 +95,10 @@ def minmax_data(game, state, utilities):
             game.undo_move(state)
         return v
 
-
+    
+    move, u = game.get_forced(state)
+    if move:
+        return move
     player = state.counter & 1
     actions = game.actions(state)
     best_action = None
