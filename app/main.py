@@ -1,14 +1,14 @@
 from game.connect4 import Connect4
 from data.utils import process_dataset
-from ai.players import minmax_player, idminmax_player
+from ai.players import minmax_player, idminmax_player, query_player
 from ai.tree_search.minmax import idminmax
-
+import pickle
 
 def main():
-    data = process_dataset()
-    lookup_table = {}
+    with open("data/8ply.pkl", "rb") as f:
+        data = pickle.load(f)
     game = Connect4()
-    game.play_game(lambda *args: idminmax_player(*args, data=data, lookup_table=lookup_table), lambda *args: minmax_player(*args, data))
+    game.play_game(lambda *args: idminmax_player(*args, lookup_table=data), query_player)
 
 
 def main2():
@@ -21,11 +21,17 @@ def main2():
     print(idminmax(game, s, data, 10))
 
 
-def idminmax_main():
-    data = process_dataset()
+def main3():
     game = Connect4()
     s = game.initial
-    print(idminmax(game, s, data, 10))
+    game.make_move(s, 3)
+    game.make_move(s, 2)
+    game.make_move(s, 3)
+    game.make_move(s, 2)
+
+    print(game.n_in_row(s, 1, 2))
+
+    
 
 
 if __name__ == '__main__':

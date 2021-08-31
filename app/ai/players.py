@@ -1,5 +1,6 @@
 from ai.tree_search.minmax import minmax, idminmax
 from timeit import default_timer as timer
+from ai.tree_search.heuristics import eval_fun_0
 import numpy as np
 
 
@@ -20,10 +21,18 @@ def random_player(game, state):
 
 
 @timeit_decorator
-def minmax_player(game, state, data):
-    return minmax(game, state, dataset=data)
+def minmax_player(game, state, lookup_table={}):
+    return minmax(game, state, lookup_table=lookup_table)
 
 
 @timeit_decorator
-def idminmax_player(game, state, data, lookup_table={}):
-    return idminmax(game, state, data, 8, lookup_table=lookup_table)
+def idminmax_player(game, state, lookup_table={}):
+
+    return idminmax(game, state, max_depth=8, lookup_table=lookup_table, eval_fun=eval_fun_0)
+
+
+@timeit_decorator
+def query_player(game, state):
+    print(f"possible actions: {game.actions(state)}")
+    a = int(input("action: "))
+    return a
