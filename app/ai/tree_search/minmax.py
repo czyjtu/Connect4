@@ -6,7 +6,7 @@ def minmax(game, state, max_depth=10, lookup_table={}, eval_fun=None, cutoff_tes
         if tuple(state.boards) in lookup_table:
             v = lookup_table[tuple(state.boards)]
             return v if player == 0 else -v
-        if cutoff_test(state, depth):
+        if cutoff_test(game, state, depth):
             return eval_fun(game, state, player)
         to_explore = order_actions(game, state, player)
         best = -np.inf if maximizing else np.inf
@@ -52,10 +52,10 @@ def minmax(game, state, max_depth=10, lookup_table={}, eval_fun=None, cutoff_tes
     return best_action
 
 
-def idminmax(game, state, max_depth=22, lookup_table={}, eval_fun=None):
+def idminmax(game, state, max_depth=22, lookup_table={}, eval_fun=None, cutoff_test=None):
     for depth in range(8, max_depth + 1):
         print("depth", depth)
-        a = minmax(game, state, max_depth=depth, lookup_table=lookup_table, eval_fun=eval_fun)
+        a = minmax(game, state, max_depth=depth, lookup_table=lookup_table, eval_fun=eval_fun, cutoff_test=cutoff_test)
         if a is not None:
             return a
 
