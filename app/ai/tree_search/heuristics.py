@@ -30,7 +30,7 @@ def eval_fun_0(game, state, player):
 def cutoff_test(game, state, depth, max_depth):
     if game.terminal_test(state):
         return True
-    if state.counter > 8 and depth > max_depth:
+    if state.counter > 9 and depth > max_depth:
         return True
     return False
 

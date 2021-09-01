@@ -10,14 +10,21 @@ class GameState:
         self.moves = deque() 
         self.utility = 0
     
+
     def as_string(self, player):
         return "{:b}".format(self.boards[player % 2]).zfill(49)
 
-    def as_board(self, player):
+
+    def _board(self, player):
         return np.rot90(np.array(list(self.as_string(player)), dtype=int).reshape(7, 7), k=3)
 
+
+    def as_board(self):
+        return self._board(0)[1:, :] - self._board(1)[1:, :]
+    
+    
     def display(self):
-        board = self.as_board(0)[1:, :] - self.as_board(1)[1:, :]
+        board = self.as_board()
         for row in board:
             for el in row:
                 if el == 0:

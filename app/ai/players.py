@@ -27,7 +27,7 @@ def minmax_player(game, state, lookup_table={}):
 
 @timeit_decorator
 def idminmax_player(game, state, lookup_table={}):
-    return idminmax(game, state, max_depth=8, lookup_table=lookup_table, eval_fun=eval_fun_0, cutoff_test=lambda *args: cutoff_test(*args, max_depth=5))
+    return idminmax(game, state, max_depth=8, lookup_table=lookup_table, eval_fun=eval_fun_0, cutoff_test=lambda *args: cutoff_test(*args, max_depth=6))
 
 
 @timeit_decorator
