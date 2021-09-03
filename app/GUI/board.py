@@ -3,7 +3,7 @@ from game import Connect4
 
 import pygame
 from pygame import gfxdraw
-import pickle
+import pickle   
 
 
 class Board:
@@ -18,6 +18,7 @@ class Board:
         self.ROW_HEIGHT = screen_size[0] / 7
         self.game = Connect4()
         self.state = self.game.initial
+        self.finished = False
         with open("data/8ply.pkl", "rb") as f:
             data = pickle.load(f)
         self.ai_player = lambda *args: idminmax_player(*args, lookup_table=data)
@@ -60,16 +61,28 @@ class Board:
             self._ply(col)
 
 
+    def _render_end_game(self, screen):
+        result = {
+            1: "PLAYER 1 WON",
+            0: "DRAW",
+            -1: "PLAYER 2 WON"
+        }
+        pygame.font.init()
+        myfont = pygame.font.SysFont('Comic Sans MS', 30)
+        
+        textsurface = myfont.render(f'GAME OVER: {result[self.state.utility]}', False, (0, 0, 0))
+        screen.blit(textsurface,(0,0))
+
+
     def _ply(self, col):
-        self.game.make_move(self.state, col)
+        if not self.finished:
+            self.game.make_move(self.state, col)
         if self.game.terminal_test(self.state):
             u = self.state.utility
+            self.finished = True
             print("utility", u)
             return u
 
-    
-    def is_finished(self):
-        return self.game.terminal_test(self.state)
 
     def clear(self):
         pass

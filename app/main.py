@@ -15,7 +15,7 @@ def main_gui():
     session = Session()
     session.render()
     while session.running:
-        session.keep_fps(60.0)
+        session.keep_fps()
         session.handle_events()
         session.render()
         session.update()
