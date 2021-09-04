@@ -1,6 +1,7 @@
 from ai.tree_search.minmax import minmax, idminmax
 from timeit import default_timer as timer
 from ai.tree_search.heuristics import eval_fun_1, eval_fun_data
+from ai.tree_search.mcts import monte_carlo_tree_search
 import numpy as np
 
 
@@ -35,3 +36,8 @@ def query_player(game, state):
     print(f"possible actions: {game.actions(state)}")
     a = int(input("action: "))
     return a
+
+
+@timeit_decorator
+def mcts_player(game, state):
+    return monte_carlo_tree_search(state, game)

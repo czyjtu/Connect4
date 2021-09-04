@@ -1,4 +1,5 @@
 from game.game_state import GameState
+from copy import deepcopy
 import numpy as np
 
 class Connect4:
@@ -31,6 +32,19 @@ class Connect4:
         move = 1 << state.height[column]
         state.boards[player] ^= move
 
+    
+    def result(self, old_state, column, player=None):
+        state = deepcopy(old_state)
+        move = 1 << state.height[column]
+        if player is None:
+            player = state.counter & 1
+        state.boards[player] ^= move
+        state.moves.append(column)
+        state.height[column] += 1
+        state.counter += 1
+        state.utility = self.compute_utility(state)
+        return state
+
 
     def actions(self, state):
         moves = []
@@ -46,7 +60,11 @@ class Connect4:
 
 
     def utility(self, state, player):
-        return state.utility if player == 0 else - state.utility
+        u = self.compute_utility(state)
+        return u if player == 0 else - u
+
+    def to_move(self, state):
+        return state.counter & 1
 
 
     def compute_utility(self, state):
@@ -65,17 +83,6 @@ class Connect4:
                 return True
         return False
 
-    
-    # def n_in_row(self, state, player, n):
-    #     directions = [1, 7, 6, 8]
-    #     for d in directions:
-    #         if n == 2 and state.boards[player] & (state.boards[player] >> d) != 0:
-    #             return True
-    #         if n == 3 and state.boards[player] & (state.boards[player] >> d) & (state.boards[player] >> 2*d)!= 0:
-    #             return True
-    #     return False
-
-
 
     def get_winning(self, state, player):
         if state.counter < 5:
@@ -89,9 +96,6 @@ class Connect4:
         return []
 
 
-    
-
-    
     def play_game(self, *players):
         state = self.initial
         while True:

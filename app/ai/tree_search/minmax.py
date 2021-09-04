@@ -54,3 +54,6 @@ def idminmax(game, state, max_depth, lookup_table={}, eval_fun=None, cutoff_test
         if a is not None:
             return a
 
+
+
+

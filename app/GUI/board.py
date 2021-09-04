@@ -1,4 +1,4 @@
-from ai.players import minmax_player
+from ai.players import mcts_player, minmax_player
 from game import Connect4
 import pygame
 from pygame import gfxdraw
