@@ -1,0 +1,1 @@
+SCORES = {'win': 1000, 'loss': -1000, 'draw': 1}

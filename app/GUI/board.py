@@ -1,6 +1,5 @@
-from ai.players import idminmax_player
+from ai.players import minmax_player
 from game import Connect4
-
 import pygame
 from pygame import gfxdraw
 import pickle   
@@ -24,7 +23,7 @@ class Board:
         self.finished = False
         with open("data/8ply.pkl", "rb") as f:
             data = pickle.load(f)
-        self.ai_player = lambda *args: idminmax_player(*args, lookup_table=data)
+        self.ai_player = lambda *args: minmax_player(*args, lookup_table=data)
         self.ply_num = 0
         
         horizontal_kernel = np.array([[ 1, 1, 1, 1]])
@@ -33,12 +32,11 @@ class Board:
         diag2_kernel = np.fliplr(diag1_kernel)
         self.detection_kernels = [horizontal_kernel, vertical_kernel, diag1_kernel, diag2_kernel]
         self.kernel_direct = [(0, 1), (1, 0), (1, 1), (-1, 1)]
+        self.waiting_for_move = False
 
 
     def update(self):
-        a = self.ai_player(self.game, self.state)
-        print(f"ai move: {a}")
-        self._ply(a)
+        self._ply(self.ai_player(self.game, self.state))
 
 
     def _render_chip(self, screen, row, column, colour):
@@ -96,11 +94,15 @@ class Board:
                     where_row, where_col = np.where(conv == 4)
                     r, c = where_row[0], where_col[0]
                     if i == 3: #poositive diagonal treated differenty
-                        r += 4 # left bottom corner of the kernel
+                        r += 3 # left bottom corner of the kernel
                     dir = self.kernel_direct[i]
                     idxs = [(r + j*dir[0], c + j*dir[1]) for j in range(4)]
                     return set(idxs)
         return set()
+
+
+    def undo_last_ply(self):
+        self.game.undo_move(self.state)
 
 
     def _ply(self, col):

@@ -101,6 +101,8 @@ class Session:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
                 self.new_game()
+            if event.key == pygame.K_b:
+                self.board.undo_last_ply()
         if event.type == pygame.MOUSEBUTTONDOWN:
             posx = event.pos[0]
             if self.board.get_turn() != self.ai_player_id:

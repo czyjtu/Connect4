@@ -66,19 +66,19 @@ class Connect4:
         return False
 
     
-    def n_in_row(self, state, player, n):
-        directions = [1, 7, 6, 8]
-        for d in directions:
-            if n == 2 and state.boards[player] & (state.boards[player] >> d) != 0:
-                return True
-            if n == 3 and state.boards[player] & (state.boards[player] >> d) & (state.boards[player] >> 2*d)!= 0:
-                return True
-        return False
+    # def n_in_row(self, state, player, n):
+    #     directions = [1, 7, 6, 8]
+    #     for d in directions:
+    #         if n == 2 and state.boards[player] & (state.boards[player] >> d) != 0:
+    #             return True
+    #         if n == 3 and state.boards[player] & (state.boards[player] >> d) & (state.boards[player] >> 2*d)!= 0:
+    #             return True
+    #     return False
 
 
 
     def get_winning(self, state, player):
-        if state.counter < 6:
+        if state.counter < 5:
             return []
         for a in self.actions(state):
             self.make_move(state, a, player)
@@ -87,6 +87,9 @@ class Connect4:
             if winning:
                 return [a] 
         return []
+
+
+    
 
     
     def play_game(self, *players):
@@ -100,7 +103,7 @@ class Connect4:
                 print(f"player {i} -> {m}")
                 self.make_move(state, m)
                 state.display()
-                print(f"2 in row: {self.n_in_row(state, i, 2)}, 3: {self.n_in_row(state, i, 3)}")
+                # print(f"2 in row: {self.n_in_row(state, i, 2)}, 3: {self.n_in_row(state, i, 3)}")
             
 
 

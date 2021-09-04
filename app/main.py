@@ -1,5 +1,5 @@
 from game.connect4 import Connect4
-from ai.players import idminmax_player, query_player
+from ai.players import minmax_player, query_player
 from GUI.session import Session
 import pickle
 
@@ -8,7 +8,7 @@ def main_console():
     with open("data/8ply.pkl", "rb") as f:
         data = pickle.load(f)
     game = Connect4()
-    game.play_game(lambda *args: idminmax_player(*args, lookup_table=data), query_player)
+    game.play_game(minmax_player, lambda *args: minmax_player(*args, lookup_table=data))
 
 
 def main_gui():
