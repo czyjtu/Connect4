@@ -1,5 +1,6 @@
 from game.connect4 import Connect4
-from ai.players import minmax_player, query_player, random_player, mcts_player
+from ai.players import minmax_player
+from ai.tree_search.mcts import MCTS
 from GUI.session import Session
 import pickle
 
@@ -22,6 +23,16 @@ def main_gui():
     session.cleanup()
 
 
+def pickle_mcts():
+    game = Connect4()
+    mcts = MCTS(game=game, state=game.initial)
+    mcts.train(200000)
+    with open("data/mcts_root_200k_1_4.pkl", "wb") as f:
+        pickle.dump(mcts.root, f)
+
+
+
 
 if __name__ == '__main__':
-    main_console()
+    main_gui()
+    # pickle_mcts()

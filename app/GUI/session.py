@@ -1,6 +1,7 @@
 from game.connect4 import Connect4
 from GUI.board import Board
 from GUI.button import Button
+from GUI.utils import AvailablePLayer 
 import pygame
 import enum 
 pygame.font.init()
@@ -13,6 +14,7 @@ class Session:
     FONT_COL = '#FFFFFF'
     mode = enum.Enum('Mode', 'START, GAME, ENDGAME')
 
+
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode(Session.SCREEN_SIZE)
@@ -20,17 +22,22 @@ class Session:
         self.grid_h = Session.SCREEN_SIZE[1] // 10
         b_w = 2 * self.grid_w
         b_h = self.grid_h
-        self.button_player = Button('Me first', b_w, b_h, (self.grid_w, 2*self.grid_h), 5)
-        self.button_ai = Button('AI first', b_w, b_h, (5*self.grid_w, 2*self.grid_h), 5)
+        self.button_player = Button('Me', b_w, b_h, (self.grid_w, 2*self.grid_h), 5)
+        self.button_ai = Button('AI', b_w, b_h, (5*self.grid_w, 2*self.grid_h), 5)
+        self.button_minmax = Button('MIN-MAX', b_w, b_h, (self.grid_w, 5*self.grid_h), 5)
+        self.button_mcts = Button('MCTS', b_w, b_h, (5*self.grid_w, 5*self.grid_h), 5)
+        self.mode = Session.mode.START
+        self.ai_player_id = None # clik to set it up
+        self.ai_agent = None
+        self.clock = pygame.time.Clock()
         self.running = True
-        self.new_game()
+
 
 
     def new_game(self):
-        self.mode = Session.mode.START
+        print("asdf")
         self.board = Board(Session.SCREEN_SIZE)
-        self.ai_player_id = None # clik to set it up
-        self.clock = pygame.time.Clock()
+        self.board.load_ai(self.ai_agent)
 
 
     def render(self):
@@ -49,6 +56,10 @@ class Session:
         self.screen.blit(textsurface,(3*self.grid_w, self.grid_h))
         self.button_player.draw(self.screen)
         self.button_ai.draw(self.screen)
+        textsurface = Session.FONT.render(f"CHOOSE AI", True, Session.FONT_COL)
+        self.screen.blit(textsurface,(3*self.grid_w, 4*self.grid_h))
+        self.button_minmax.draw(self.screen)
+        self.button_mcts.draw(self.screen)
           
 
     def _game_screen(self):
@@ -64,8 +75,9 @@ class Session:
 
 
     def update(self):
-        if self.board.get_turn() == self.ai_player_id and not self.board.finished:
+        if self.mode == Session.mode.GAME and self.board.get_turn() == self.ai_player_id and not self.board.finished:
             self.board.update()
+            
 
 
     def keep_fps(self, fps=30.0):
@@ -85,16 +97,27 @@ class Session:
 
 
     def _start_events(self, event):
-        pressed = False
         if self.button_player.pressed:
-            self.button_player.pressed = False
-            pressed = True
+            self.button_ai.pressed = False
             self.ai_player_id = 1
         elif self.button_ai.pressed:
-            self.button_ai.pressed = False
-            pressed = True
+            self.button_player.pressed = False
             self.ai_player_id = 0
-        self.mode = Session.mode.GAME if pressed else self.mode
+        if self.button_minmax.pressed:
+            self.button_mcts.pressed = False
+            self.ai_agent = AvailablePLayer.MINMAX
+        elif self.button_mcts.pressed:
+            self.button_minmax.pressed= False
+            self.ai_agent = AvailablePLayer.MCTS
+        player_chosen = self.button_ai.pressed or self.button_player.pressed
+        ai_chosen = self.button_minmax.pressed or self.button_mcts.pressed
+        self.mode = Session.mode.GAME if player_chosen and ai_chosen else self.mode
+        if player_chosen and ai_chosen:
+            self.button_minmax.pressed= False
+            self.button_mcts.pressed = False
+            self.button_player.pressed = False
+            self.button_ai.pressed = False
+            self.new_game()
 
     
     def _game_events(self, event):
@@ -113,7 +136,7 @@ class Session:
 
     def _endgame_events(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
-            self.new_game()
+            self.mode = Session.mode.START
 
 
     def cleanup(self):

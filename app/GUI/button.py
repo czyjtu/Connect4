@@ -19,6 +19,7 @@ class Button:
 		#text
 		self.text_surf = pygame.font.Font(None,30).render(text,True,'#FFFFFF')
 		self.text_rect = self.text_surf.get_rect(center = self.top_rect.center)
+		self.pressed = False
 
 	def draw(self, screen):
 		# elevation logic 
@@ -39,12 +40,11 @@ class Button:
 			self.top_color = '#D74B4B'
 			if pygame.mouse.get_pressed()[0]:
 				self.dynamic_elecation = 0
-				self.pressed = True
+				self.pressed= True
 			else:
 				self.dynamic_elecation = self.elevation
-				if self.pressed == True:
-					print('click')
-					self.pressed = False
+		elif self.pressed:
+			self.top_color= '#D74B4B'
 		else:
 			self.dynamic_elecation = self.elevation
 			self.top_color = '#475F77'

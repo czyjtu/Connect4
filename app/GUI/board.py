@@ -1,10 +1,11 @@
-from ai.players import mcts_player, minmax_player
+from ai.players import MctsPlayer, MinmaxPlayer
 from game import Connect4
 import pygame
 from pygame import gfxdraw
 import pickle   
 import numpy as np
 from scipy.signal import convolve2d
+from GUI.utils import AvailablePLayer
 
 
 
@@ -21,11 +22,7 @@ class Board:
         self.game = Connect4()
         self.state = self.game.initial
         self.finished = False
-        with open("data/8ply.pkl", "rb") as f:
-            data = pickle.load(f)
-        self.ai_player = lambda *args: minmax_player(*args, lookup_table=data)
         self.ply_num = 0
-        
         horizontal_kernel = np.array([[ 1, 1, 1, 1]])
         vertical_kernel = np.transpose(horizontal_kernel)
         diag1_kernel = np.eye(4, dtype=np.uint8)
@@ -35,8 +32,16 @@ class Board:
         self.waiting_for_move = False
 
 
+    def load_ai(self, ai_player):
+        print(ai_player)
+        if ai_player == AvailablePLayer.MCTS:
+            self.ai_player = MctsPlayer(self.game, path="data/mcts_root_200k_1_4.pkl")
+        elif ai_player == AvailablePLayer.MINMAX:
+            self.ai_player = MinmaxPlayer(self.game, "data/8ply.pkl")
+
+
     def update(self):
-        self._ply(self.ai_player(self.game, self.state))
+        self._ply(self.ai_player.next_move(self.state))
 
 
     def _render_chip(self, screen, row, column, colour):

@@ -1,4 +1,5 @@
 from collections import deque
+import pickle
 import numpy as np
 
 
@@ -36,8 +37,12 @@ class GameState:
             print()
         print()
 
+    def __str__(self):
+        return f"|{self.boards}|"
     
     def __hash__(self):
         return hash(tuple(self.boards))
                 
-      
+
+
+    
